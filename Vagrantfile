@@ -35,7 +35,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	        	s.path = "scripts/setup-ssh.sh"
 	        	s.args = "#{numNodes}"
         	end
+	 else
+        # zookeeper
+        node.vm.provision "shell" do |s|
+          s.path = "scripts/setup-zookeeper.sh"
+          s.args = "-t #{numNodes}"
+        end
+        # kafka broker
+        node.vm.provision "shell" do |s|
+          s.path = "scripts/setup-kafka.sh"
+          s.args = "-t #{numNodes}"
+        end
+
 	end
+      #After everything is provisioned, start Supervisor
+      node.vm.provision "shell", inline: "pgrep supervisord || start supervisor"
+      node.vm.provision "shell", inline: "supervisorctl start all"
+
       end
   end
 end
